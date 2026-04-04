@@ -1,0 +1,31 @@
+# .cargo/config.toml
+#
+# Configuration for cross-compiling pingora-edge from macOS to Linux using
+# cargo-zigbuild. Zig acts as the C/C++ compiler and linker, which means
+# BoringSSL's cmake build works without a separate cross-toolchain.
+#
+# Usage:
+#   cargo zigbuild --release --target x86_64-unknown-linux-musl
+#   cargo zigbuild --release --target aarch64-unknown-linux-musl
+#
+# The resulting binary is fully static (musl libc) and has no runtime
+# dependencies. It runs on any Linux x86_64 or ARM64 server.
+
+[build]
+# Native macOS build uses the system default (no linker override needed).
+# Remove or comment the [target.*] sections below if you never cross-compile.
+
+# ── Linux x86_64 (static musl) ───────────────────────────────────────────────
+[target.x86_64-unknown-linux-musl]
+linker = "rust-lld"
+
+# ── Linux ARM64 (static musl) ─────────────────────────────────────────────────
+[target.aarch64-unknown-linux-musl]
+linker = "rust-lld"
+
+# ── Environment for BoringSSL cmake build ─────────────────────────────────────
+# boring-sys invokes cmake to compile BoringSSL. Set BORING_BSSL_PATH if you
+# want to use a pre-built BoringSSL instead of compiling from source.
+#
+# [env]
+# BORING_BSSL_PATH = "/path/to/prebuilt/boringssl"

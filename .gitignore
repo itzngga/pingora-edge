@@ -1,0 +1,12 @@
+/target
+
+# Real configs and local state stay out of the repository.
+/proxy.toml
+*.last-good
+/examples/certs/
+/examples/state/
+/examples/site/
+
+.idea/
+.vscode/
+.DS_Store
