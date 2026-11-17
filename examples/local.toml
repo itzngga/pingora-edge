@@ -1,0 +1,47 @@
+# A local playground for pingora-edge. See README.md, "Try it locally".
+#
+# Run from the repository root after creating the files the README lists:
+#   examples/certs/edge.crt, examples/certs/edge.key   (self-signed)
+#   examples/site/index.html                             (static root)
+# and an upstream on 127.0.0.1:8081.
+#
+# Every route carries a static certificate, so no ACME order is placed.
+
+[acme]
+email    = "admin@example.com"
+provider = "letsencrypt"
+storage  = "examples/state"
+
+[security]
+# Loopback is always trusted. Nothing else is needed for local testing.
+trusted_ips = []
+
+[error_page]
+enabled = true
+
+# A reverse-proxied route.
+[[route]]
+name        = "app"
+hosts       = ["app.example.test"]
+upstream    = "http://127.0.0.1:8081"
+static_cert = "examples/certs/edge.crt"
+static_key  = "examples/certs/edge.key"
+add_headers = { "X-Edge-Route" = "app" }
+
+# Files served from disk by the edge itself.
+[[route]]
+name        = "static"
+hosts       = ["static.example.test"]
+mode        = "static"
+static_root = "examples/site"
+static_cert = "examples/certs/edge.crt"
+static_key  = "examples/certs/edge.key"
+
+# A hostname that moved: 301 with path and query kept.
+[[route]]
+name        = "old"
+hosts       = ["old.example.test"]
+mode        = "redirect"
+redirect_to = "app.example.test"
+static_cert = "examples/certs/edge.crt"
+static_key  = "examples/certs/edge.key"

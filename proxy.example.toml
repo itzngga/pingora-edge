@@ -1,0 +1,154 @@
+# pingora-edge example configuration.
+#
+# Copy to proxy.toml and edit. Every value below is a placeholder
+# (example.com names, 203.0.113.0/24 and 198.51.100.0/24 addresses).
+# Check a file before using it:
+#
+#   pingora-edge --check proxy.toml
+#
+# Keys marked "restart" need a process restart to change; everything under
+# [[route]] and most of [security] reloads hot (SIGHUP, file watch, or
+# `pingora-edge --reload`).
+
+# Prometheus text at /metrics, plus /health and a few JSON views.
+metrics        = true
+metrics_listen = "127.0.0.1:9090"            # restart
+
+# On-demand TLS: one hostname per line. Listed hosts get a certificate on their
+# first handshake and are served by the route with on_demand_fallback = true.
+# "" turns it off.
+on_demand_hosts = ""                         # e.g. "/etc/pingora-edge/on-demand-hosts.txt"
+
+# ── ACME (restart) ───────────────────────────────────────────────────────────
+[acme]
+email    = "admin@example.com"
+provider = "letsencrypt"                     # or "zerossl" (needs eab_kid + eab_hmac)
+eab_kid  = ""
+eab_hmac = ""
+storage  = "/var/lib/pingora-edge/acme"      # certs, the ACME account, caches
+
+# ── Security and abuse defence ───────────────────────────────────────────────
+[security]
+# Health checkers and admin hosts exempt from abuse tracking.
+trusted_ips = ["203.0.113.10", "10.0.0.0/8"]
+
+# Only accept connections from Cloudflare (also settable per route).
+cloudflare_only = false
+maintenance_mode = false
+
+# Per-visitor limits (per route, overridable with [route.rate_limit]).
+default_rate_limit  = 50                     # requests per second
+default_burst       = 100
+max_inflight_per_ip = 150
+
+# Whole-edge ceilings.
+global_rps_limit        = 3000               # 0 = off
+global_connection_limit = 8000
+max_live_tls            = 40000              # capped to what the RAM carries when left at the default
+
+# Request hygiene.
+max_request_body              = 5242880      # bytes
+reject_invalid_content_length = true
+reject_header_injection       = true
+block_scanners                = true
+block_empty_user_agent        = false
+block_user_agents             = []           # substrings, case-insensitive
+blocked_ips                   = ["198.51.100.0/24"]
+block_header_patterns         = []
+
+# :443 pre-filter, before any TLS work.
+conn_rate_per_ip  = 100                      # connections per IP per 10 s, 0 = off
+abuse_strikes     = 3                        # strikes before an IP is dropped at :443
+abuse_block_secs  = 300
+tls_fp_rate       = 0                        # connections per ClientHello fingerprint per 10 s, 0 = off
+tls_fp_enforce    = false                    # false = shadow mode, count only
+
+# Direct (non-Cloudflare) connection budget.
+max_live_direct               = 0            # 0 = no separate cap
+max_live_direct_degraded      = 0            # cap while the on-demand fallback backend is down
+drop_direct_when_backend_down = false
+
+# HTTP/2.
+http2_enabled             = true             # restart
+h2_max_concurrent_streams = 64               # restart
+h2_cancel_threshold       = 200              # client cancels per IP per 10 s before a block, 0 = off
+h2_max_streams_per_conn   = 1000             # 0 = off
+
+# Upstream circuit breaker.
+upstream_max_fails         = 10              # 0 = off
+upstream_fail_timeout_secs = 5
+global_timeout_secs        = 60
+
+# Real client address towards the upstream, and between chained edges.
+real_ip_header         = "X-Real-IP"
+real_ip_sig_header     = "X-Real-IP-Sig"
+trust_upstream_real_ip = false               # only on an inner edge behind trusted peers
+real_ip_secret         = ""                  # HMAC key shared by chained edges
+real_ip_verify         = false
+
+# ── Blocklist (restart, except origin_block_header) ──────────────────────────
+[blocklist]
+enabled   = true
+source    = ""                               # "https://lists.example.com/edge.json" or "/etc/pingora-edge/blocklist.txt"
+token     = ""                               # sent as Authorization: Bearer
+pull_secs = 300
+dyn_source = ""                              # optional URL with short-lived entries
+dyn_secs   = 30
+cache      = ""                              # "" = <acme.storage>/blocklist-cache.json, "off" = none
+origin_block_header = ""                     # e.g. "X-Edge-Block": an upstream bans the visitor for N seconds
+
+# ── Visitor-facing 503 page (restart) ────────────────────────────────────────
+[error_page]
+enabled    = false
+retry_secs = 8
+
+# ── Routes (hot) ─────────────────────────────────────────────────────────────
+
+# Reverse proxy with an ACME certificate (no static_cert = ACME-managed).
+[[route]]
+name     = "app"
+hosts    = ["example.com", "www.example.com"]
+upstream = "http://127.0.0.1:8081"
+add_headers = { "X-Edge-Route" = "app" }
+rate_limit  = { rps = 100, burst = 200 }
+
+# TLS upstream with its own read timeout and HTTP/2 to the origin.
+[[route]]
+name         = "api"
+hosts        = ["api.example.com"]
+upstream     = "https://origin.example.net"
+upstream_h2  = true
+timeout_secs = 120
+
+# Static files from disk, with a few old URLs kept as redirects.
+[[route]]
+name             = "docs"
+hosts            = ["docs.example.com"]
+mode             = "static"
+static_root      = "/srv/docs"
+not_found_status = 404
+redirects        = { "/old-page/" = "/new-page/" }
+
+# A hostname that moved.
+[[route]]
+name            = "legacy"
+hosts           = ["old.example.org"]
+mode            = "redirect"
+redirect_to     = "example.com"
+redirect_status = 301
+
+# A static certificate behind a CDN (only Cloudflare peers accepted).
+[[route]]
+name            = "shop"
+hosts           = ["shop.example.com"]
+upstream        = "http://127.0.0.1:8082"
+cloudflare_only = true
+static_cert     = "/etc/pingora-edge/certs/shop.example.com.crt"
+static_key      = "/etc/pingora-edge/certs/shop.example.com.key"
+
+# Serves every host on the on_demand_hosts list.
+# [[route]]
+# name               = "tenants"
+# hosts              = []
+# upstream           = "http://127.0.0.1:8090"
+# on_demand_fallback = true
