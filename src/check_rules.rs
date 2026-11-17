@@ -258,10 +258,9 @@ pub fn header(line: &str) -> Option<(bool, String)> {
     let t = line.trim();
     let (array, inner) = if let Some(r) = t.strip_prefix("[[") {
         (true, r.split_once("]]")?.0)
-    } else if let Some(r) = t.strip_prefix('[') {
-        (false, r.split_once(']')?.0)
     } else {
-        return None;
+        let r = t.strip_prefix('[')?;
+        (false, r.split_once(']')?.0)
     };
     let name: Vec<&str> = inner
         .split('.')

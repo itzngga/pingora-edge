@@ -1332,8 +1332,8 @@ fn tls_fingerprint(buf: &[u8]) -> Option<u64> {
     if pos + cs_len > total_len || !cs_len.is_multiple_of(2) {
         return None;
     }
-    for c in buf[pos..pos + cs_len].chunks_exact(2) {
-        let v = u16::from_be_bytes([c[0], c[1]]);
+    for c in buf[pos..pos + cs_len].as_chunks::<2>().0 {
+        let v = u16::from_be_bytes(*c);
         if !is_grease(v) {
             h = fnv(h, v);
         }
@@ -1375,8 +1375,8 @@ fn tls_fingerprint(buf: &[u8]) -> Option<u64> {
             0x000a if ext_len >= 2 => {
                 let n = u16::from_be_bytes([buf[pos], buf[pos + 1]]) as usize;
                 if n + 2 <= ext_len && n.is_multiple_of(2) {
-                    for g in buf[pos + 2..pos + 2 + n].chunks_exact(2) {
-                        let v = u16::from_be_bytes([g[0], g[1]]);
+                    for g in buf[pos + 2..pos + 2 + n].as_chunks::<2>().0 {
+                        let v = u16::from_be_bytes(*g);
                         if !is_grease(v) {
                             h = fnv(h, v);
                         }
@@ -1534,7 +1534,7 @@ pub fn tls_fp_top(n: usize) -> Vec<(String, u64)> {
         .iter()
         .map(|(k, c)| (format!("{:016x}", *k), c.load(Ordering::Relaxed)))
         .collect();
-    v.sort_by(|a, b| b.1.cmp(&a.1));
+    v.sort_by_key(|r| std::cmp::Reverse(r.1));
     v.truncate(n);
     v
 }

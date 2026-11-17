@@ -41,6 +41,8 @@ fn json(status: u16, body: String) -> Response<Full<Bytes>> {
 const POST_BODY_MAX: usize = 64 * 1024;
 
 /// Ok(bytes), or Err(413) when the body is over `max`. Other read errors read as empty.
+// The Err is the response to send back, built at most once per control call.
+#[allow(clippy::result_large_err)]
 async fn capped_body(req: Request<Incoming>, max: usize) -> Result<Bytes, Response<Full<Bytes>>> {
     match Limited::new(req.into_body(), max).collect().await {
         Ok(c) => Ok(c.to_bytes()),
@@ -64,6 +66,7 @@ fn query_param(uri: &hyper::Uri, key: &str) -> Option<String> {
     })
 }
 
+#[allow(clippy::result_large_err)]
 async fn small_body(req: Request<Incoming>) -> Result<Bytes, Response<Full<Bytes>>> {
     capped_body(req, POST_BODY_MAX).await
 }

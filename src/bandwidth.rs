@@ -320,7 +320,7 @@ pub fn json(routes: &[crate::config::RouteConfig]) -> String {
             }))
         })
         .collect();
-    rows.sort_by(|a, b| b.0.cmp(&a.0));
+    rows.sort_by_key(|r| std::cmp::Reverse(r.0));
 
     let months: Vec<serde_json::Value> = h
         .months
@@ -330,7 +330,7 @@ pub fn json(routes: &[crate::config::RouteConfig]) -> String {
         .map(|(k, per)| {
             let mut t = [0u64; 3];
             let mut by: Vec<(&String, u64)> = per.iter().map(|(r, v)| (r, v[0])).collect();
-            by.sort_by(|a, b| b.1.cmp(&a.1));
+            by.sort_by_key(|r| std::cmp::Reverse(r.1));
             for v in per.values() {
                 add(&mut t, *v);
             }
