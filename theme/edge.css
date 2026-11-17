@@ -1,0 +1,176 @@
+/* Look and feel for the docs site: slate surfaces, one indigo accent,
+   Plus Jakarta Sans for text and JetBrains Mono for code. */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
+
+:root {
+  --mono-font: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --content-max-width: 780px;
+  --radius: 12px;
+}
+
+/* Light: slate-50 page, slate-100 sidebar, indigo-600 accent. */
+.light,
+html:not(.js) {
+  --bg: #f8fafc;
+  --fg: #0f172a;
+
+  --sidebar-bg: #f1f5f9;
+  --sidebar-fg: #334155;
+  --sidebar-non-existant: #94a3b8;
+  --sidebar-active: #4f46e5;
+  --sidebar-spacer: #e2e8f0;
+  --sidebar-header-border-color: #4f46e5;
+
+  --scrollbar: #94a3b8;
+  --icons: #64748b;
+  --icons-hover: #0f172a;
+  --links: #4f46e5;
+  --inline-code-color: #3730a3;
+
+  --theme-popup-bg: #ffffff;
+  --theme-popup-border: #cbd5e1;
+  --theme-hover: #e2e8f0;
+
+  --quote-bg: #eef2ff;
+  --quote-border: #c7d2fe;
+
+  --table-border-color: #e2e8f0;
+  --table-header-bg: #e2e8f0;
+  --table-alternate-bg: #f1f5f9;
+
+  --searchbar-border-color: #cbd5e1;
+  --searchbar-bg: #ffffff;
+  --searchbar-fg: #0f172a;
+  --searchbar-shadow-color: #cbd5e1;
+  --searchresults-header-fg: #475569;
+  --searchresults-border-color: #cbd5e1;
+  --searchresults-li-bg: #eef2ff;
+  --search-mark-bg: #c7d2fe;
+
+  --code-bg: #ffffff;
+  --code-border: #e2e8f0;
+}
+
+/* Dark: slate-950 page, slate-900 sidebar and code, indigo-400 accent.
+   Navy is the dark theme picked when the system prefers dark. */
+.navy {
+  --bg: #020617;
+  --fg: #cbd5e1;
+
+  --sidebar-bg: #0f172a;
+  --sidebar-fg: #94a3b8;
+  --sidebar-non-existant: #475569;
+  --sidebar-active: #818cf8;
+  --sidebar-spacer: #1e293b;
+  --sidebar-header-border-color: #818cf8;
+
+  --scrollbar: #475569;
+  --icons: #94a3b8;
+  --icons-hover: #f1f5f9;
+  --links: #818cf8;
+  --inline-code-color: #c7d2fe;
+
+  --theme-popup-bg: #0f172a;
+  --theme-popup-border: #334155;
+  --theme-hover: #1e293b;
+
+  --quote-bg: rgba(99, 102, 241, 0.12);
+  --quote-border: rgba(129, 140, 248, 0.35);
+
+  --table-border-color: #1e293b;
+  --table-header-bg: #1e293b;
+  --table-alternate-bg: #0b1222;
+
+  --searchbar-border-color: #334155;
+  --searchbar-bg: #0f172a;
+  --searchbar-fg: #f1f5f9;
+  --searchbar-shadow-color: #020617;
+  --searchresults-header-fg: #94a3b8;
+  --searchresults-border-color: #334155;
+  --searchresults-li-bg: #1e293b;
+  --search-mark-bg: #4338ca;
+
+  --code-bg: #0f172a;
+  --code-border: #1e293b;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.js) {
+    --bg: #020617;
+    --fg: #cbd5e1;
+    --sidebar-bg: #0f172a;
+    --sidebar-fg: #94a3b8;
+    --sidebar-active: #818cf8;
+    --links: #818cf8;
+    --inline-code-color: #c7d2fe;
+    --table-border-color: #1e293b;
+    --table-header-bg: #1e293b;
+    --table-alternate-bg: #0b1222;
+    --code-bg: #0f172a;
+    --code-border: #1e293b;
+  }
+}
+
+html {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.content {
+  line-height: 1.7;
+}
+
+.content h1,
+.content h2,
+.content h3 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.content h2 {
+  margin-top: 2.2em;
+}
+
+/* Code blocks as cards, like the main site. */
+.content pre {
+  border-radius: var(--radius);
+  border: 1px solid var(--code-border);
+}
+
+.content pre > code.hljs {
+  background: var(--code-bg);
+  border-radius: var(--radius);
+}
+
+.content :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+
+/* Tables fill the column and scroll sideways on a phone. */
+.content table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.content table td,
+.content table th {
+  padding: 8px 12px;
+  vertical-align: top;
+}
+
+.content table td:first-child code {
+  white-space: nowrap;
+}
+
+/* The site uses the slate themes only. */
+#mdbook-theme-rust,
+#mdbook-theme-coal,
+#mdbook-theme-ayu,
+#rust,
+#coal,
+#ayu {
+  display: none;
+}

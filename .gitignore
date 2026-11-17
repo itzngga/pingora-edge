@@ -10,3 +10,6 @@
 .idea/
 .vscode/
 .DS_Store
+
+# Docs site output (mdbook build)
+/book

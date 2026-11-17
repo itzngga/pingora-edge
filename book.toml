@@ -1,0 +1,24 @@
+# Docs site, built with mdBook from the Markdown in docs/.
+# The same files render on GitHub, so edit them there or here.
+#
+#   mdbook serve      # preview on http://localhost:3000
+#   mdbook build      # writes book/
+
+[book]
+title = "pingora-edge"
+description = "A TLS-terminating edge proxy in Rust, built on Pingora and BoringSSL."
+authors = ["itzngga"]
+language = "en"
+src = "docs"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+site-url = "/pingora-edge/"
+git-repository-url = "https://github.com/itzngga/pingora-edge"
+edit-url-template = "https://github.com/itzngga/pingora-edge/edit/main/{path}"
+additional-css = ["theme/edge.css"]
+no-section-label = true
+
+[output.html.search]
+enable = true

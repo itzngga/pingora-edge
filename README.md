@@ -2,6 +2,7 @@
 <p align="center">tls edge proxy built on <a href="https://github.com/cloudflare/pingora">pingora</a> and boringssl</p>
 
 <p align="center">
+	<a href="https://itzngga.github.io/pingora-edge/"><img alt="docs" src="https://img.shields.io/badge/docs-itzngga.github.io-6366f1?style=flat-square"></a>
 	<img alt="License" src="https://img.shields.io/github/license/itzngga/pingora-edge?style=flat-square">
 	<img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/itzngga/pingora-edge?style=flat-square">
 </p>
@@ -45,6 +46,10 @@ sudo ./target/release/pingora-edge proxy.toml
 
 To try it on your laptop first (no domain needed), see
 [try it locally](docs/getting-started.md#try-it-locally).
+
+## Docs
+
+https://itzngga.github.io/pingora-edge/ (same files as [`docs/`](docs/))
 
 ## Limitations
 
