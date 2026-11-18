@@ -20,9 +20,23 @@ Running in production. Not perfect, but it holds up. Issues and PRs are welcome.
 - proxy, static and redirect routes
 - `--check` config verifier, hot reload (whole file or nothing), control socket, Prometheus metrics
 
-## Build
+## Install
 
-BoringSSL builds from source, so you need `cmake`, `clang`, Go and a C/C++ compiler.
+Linux binaries (x86_64 and arm64, glibc 2.34+) are on the
+[releases](https://github.com/itzngga/pingora-edge/releases) page.
+
+```bash
+VER=v0.6.0 ARCH=x86_64  # or aarch64
+NAME=pingora-edge-$VER-$ARCH-unknown-linux-gnu
+curl -LO https://github.com/itzngga/pingora-edge/releases/download/$VER/$NAME.tar.gz
+curl -LO https://github.com/itzngga/pingora-edge/releases/download/$VER/$NAME.tar.gz.sha256
+sha256sum -c $NAME.tar.gz.sha256
+tar -xzf $NAME.tar.gz
+sudo install $NAME/pingora-edge /usr/local/bin/
+```
+
+Or build it yourself. BoringSSL builds from source, so you need `cmake`, `clang`, Go and a C/C++
+compiler.
 
 ```bash
 cargo build --release
@@ -37,12 +51,14 @@ cp proxy.example.toml proxy.toml
 Set `acme.email`, `acme.storage` and your routes, then:
 
 ```bash
-./target/release/pingora-edge --check proxy.toml
+pingora-edge --check proxy.toml
 ```
 
 ```bash
-sudo ./target/release/pingora-edge proxy.toml
+sudo pingora-edge proxy.toml
 ```
+
+Built it yourself? The binary is `./target/release/pingora-edge`.
 
 To try it on your laptop first (no domain needed), see
 [try it locally](docs/getting-started.md#try-it-locally).

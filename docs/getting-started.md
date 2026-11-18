@@ -1,8 +1,25 @@
 # Getting started
 
+## Download
+
+Linux binaries (x86_64 and arm64, glibc 2.34+) are on the
+[releases](https://github.com/itzngga/pingora-edge/releases) page. Each archive also has
+`proxy.example.toml` and the systemd unit.
+
+```bash
+VER=v0.6.0 ARCH=x86_64  # or aarch64
+NAME=pingora-edge-$VER-$ARCH-unknown-linux-gnu
+curl -LO https://github.com/itzngga/pingora-edge/releases/download/$VER/$NAME.tar.gz
+curl -LO https://github.com/itzngga/pingora-edge/releases/download/$VER/$NAME.tar.gz.sha256
+sha256sum -c $NAME.tar.gz.sha256
+tar -xzf $NAME.tar.gz
+sudo install $NAME/pingora-edge /usr/local/bin/
+```
+
 ## Build
 
-BoringSSL builds from source, so you need `cmake`, `clang`, Go and a C/C++ compiler.
+Or build it yourself. BoringSSL builds from source, so you need `cmake`, `clang`, Go and a C/C++
+compiler.
 
 ```bash
 cargo build --release
@@ -21,12 +38,14 @@ cp proxy.example.toml proxy.toml
 Set `acme.email`, `acme.storage` and your routes, then:
 
 ```bash
-./target/release/pingora-edge --check proxy.toml
+pingora-edge --check proxy.toml
 ```
 
 ```bash
-sudo ./target/release/pingora-edge proxy.toml
+sudo pingora-edge proxy.toml
 ```
+
+Built it yourself? Use `./target/release/pingora-edge` instead.
 
 It binds `:80` and `:443` on all addresses, plus `127.0.0.1:4443`, `127.0.0.1:8080` and
 `metrics_listen` (default `127.0.0.1:9090`). On Linux you need root or `CAP_NET_BIND_SERVICE`.
